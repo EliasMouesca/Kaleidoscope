@@ -1,9 +1,11 @@
 #include "kaleidoscope.h"
 
+#include <assert.h>
+#include <stdio.h>
+
 void doKaleidoscoping(SDL_Renderer* ren, SDL_Texture* texture)
 {
     SDL_Texture* oldTarget = SDL_GetRenderTarget(ren);
-    
     
     SDL_SetRenderTarget(ren, texture);
 

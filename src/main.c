@@ -43,19 +43,25 @@ int main()
                     SDL_PIXELFORMAT_RGBA8888, 
                     SDL_TEXTUREACCESS_TARGET, windowWidth, windowHeight);
 
+            /* IMG LOAD
             SDL_Surface* sur = IMG_Load("image.jpg");
             SDL_Texture* tex = SDL_CreateTextureFromSurface(mainRenderer, sur);
             SDL_FreeSurface(sur);
+            */
 
             SDL_SetRenderTarget(mainRenderer, canvasTexture);
-            SDL_RenderCopy(mainRenderer, tex, NULL, NULL);
-            SDL_DestroyTexture(tex);
+            //SDL_RenderCopy(mainRenderer, tex, NULL, NULL);
+            //SDL_DestroyTexture(tex);
 
-            doKaleidoscoping(mainRenderer, canvasTexture);
+            SDL_SetRenderDrawColor(mainRenderer, 200, 200, 134, 0xff);
+            SDL_RenderClear(mainRenderer);
+
+            //doKaleidoscoping(mainRenderer, canvasTexture);
 
             SDL_SetRenderTarget(mainRenderer, NULL);
             SDL_RenderCopy(mainRenderer, canvasTexture, NULL, NULL);
             SDL_RenderPresent(mainRenderer);
+            SDL_DestroyTexture(canvasTexture);
         }
     }
 
