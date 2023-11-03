@@ -9,7 +9,7 @@ SRCFILES:=$(wildcard $(SRCDIR)/*.c)
 OBJFILES:=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCFILES))
 
 $(EXECUTABLE): $(OBJFILES)
-	gcc-o $@ $^ $(LDFLAGS)
+	gcc -o $@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	gcc -ggdb -c -o $@ $^ $(CFLAGS)
