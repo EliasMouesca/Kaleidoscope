@@ -15,7 +15,7 @@ int main()
 
     SDL_Window* programWindow = SDL_CreateWindow(
             "DEMO", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            600, 600, 0);
+            600, 600, WINDOW_FLAGS);
     SDL_Renderer* mainRenderer = SDL_CreateRenderer(programWindow, -1, 0);
 
     bool shutdown = false;
@@ -35,13 +35,26 @@ int main()
         // Render
         if (SDL_GetTicks64() >= nextFrame)
         {
+            int windowWidth;
+            int windowHeight;
+            SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
+
+            SDL_Texture* canvasTexture = SDL_CreateTexture(mainRenderer, 
+                    SDL_PIXELFORMAT_RGBA8888, 
+                    SDL_TEXTUREACCESS_TARGET, windowWidth, windowHeight);
+
             SDL_Surface* sur = IMG_Load("image.jpg");
             SDL_Texture* tex = SDL_CreateTextureFromSurface(mainRenderer, sur);
+            SDL_FreeSurface(sur);
 
+            SDL_SetRenderTarget(mainRenderer, canvasTexture);
             SDL_RenderCopy(mainRenderer, tex, NULL, NULL);
+            SDL_DestroyTexture(tex);
 
-            //doKaleidoscoping(mainRenderer, 
+            doKaleidoscoping(mainRenderer, canvasTexture);
 
+            SDL_SetRenderTarget(mainRenderer, NULL);
+            SDL_RenderCopy(mainRenderer, canvasTexture, NULL, NULL);
             SDL_RenderPresent(mainRenderer);
         }
     }
