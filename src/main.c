@@ -21,6 +21,8 @@ int main()
     bool shutdown = false;
     Uint64 nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
 
+    SDL_Surface* imgSurface = IMG_Load("image.jpg");
+
     while (!shutdown)
     {
         SDL_Event eventPoll;
@@ -31,11 +33,6 @@ int main()
         {
             shutdown = true;
         }
-
-        SDL_Surface* sur = IMG_Load("image.jpg");
-        SDL_Texture* tex = SDL_CreateTextureFromSurface(mainRenderer, sur);
-        SDL_FreeSurface(sur);
-            
 
         // Render
         if (SDL_GetTicks64() >= nextFrame)
@@ -48,15 +45,17 @@ int main()
                     SDL_PIXELFORMAT_RGBA8888, 
                     SDL_TEXTUREACCESS_TARGET, windowWidth, windowHeight);
 
-
-            SDL_SetRenderTarget(mainRenderer, canvasTexture);
-            SDL_RenderCopy(mainRenderer, tex, NULL, NULL);
-            SDL_DestroyTexture(tex);
+            //SDL_SetRenderTarget(mainRenderer, canvasTexture);
 
             //SDL_SetRenderDrawColor(mainRenderer, 200, 200, 134, 0xff);
             //SDL_RenderClear(mainRenderer);
 
-            doKaleidoscoping(mainRenderer, canvasTexture);
+            int a = doKaleidoscoping(mainRenderer, imgSurface, canvasTexture);
+            if (a == false)
+            {
+                puts(SDL_GetError());
+                return 1;
+            }
 
             SDL_SetRenderTarget(mainRenderer, NULL);
             SDL_RenderCopy(mainRenderer, canvasTexture, NULL, NULL);
@@ -66,6 +65,7 @@ int main()
         else SDL_Delay(5);
     }
 
+    SDL_FreeSurface(imgSurface);
 
     // Finish
     IMG_Quit();
