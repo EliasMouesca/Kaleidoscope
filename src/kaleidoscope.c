@@ -15,7 +15,7 @@
     const uint32_t A_MASK = 0xff000000;
 #endif
 
-bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* dstTexture)
+bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* dstTexture, double phase)
 {
     if ( (ren == NULL) | (dstTexture == NULL) ) return false;
 
@@ -30,15 +30,16 @@ bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* d
             SDL_TEXTUREACCESS_TARGET, w, h);
     if (bufferTexture == NULL) return false;
     
+    int maxSize = (w > h)? w : h;
     SDL_Texture* cornerTexture = NULL;
     SDL_Surface* cornerSurface = SDL_CreateRGBSurface(
-            0, w / 2, h / 2, 32, 
+            0, maxSize / 2, maxSize / 2, 32, 
             R_MASK, G_MASK, B_MASK, A_MASK);
     SDL_SetSurfaceBlendMode(cornerSurface, SDL_BLENDMODE_NONE);
 
     // LOAD "cornerSurface" and mirror diagonally
     if (SDL_BlitSurface(srcSurface, NULL, cornerSurface, NULL) < 0) return false;
-    //mirrorDiagonally(cornerSurface);
+    mirrorDiagonally(cornerSurface);
 
     // CONVERT "cornerSurface" TO TEXTURE
     {
@@ -76,7 +77,7 @@ bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* d
 
     // Copy from bufferTexture to actual texture
     SDL_SetRenderTarget(ren, dstTexture);
-    SDL_RenderCopy(ren, bufferTexture, NULL, NULL);
+    SDL_RenderCopyEx(ren, bufferTexture, NULL, NULL, 0 * (phase * 360), NULL, SDL_FLIP_NONE);
 
     SDL_DestroyTexture(bufferTexture);
     SDL_SetRenderTarget(ren, oldTarget);
@@ -86,26 +87,25 @@ bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* d
 
 bool mirrorDiagonally(SDL_Surface* surface)
 {
+    if (surface->w != surface->h) return false;
+
     SDL_LockSurface(surface);
 
-    //void* auxPixels = calloc(surface->w * surface->h, sizeof(Uint32));
-    //memcpy(auxPixels, surface->pixels, surface->w * surface->h);
-
     const double HEIGHT_OVER_WIDTH = (double) surface->h / (double) surface->w;
-    //const double WIDTH_OVER_HEIGHT = (double) surface->w / (double) surface->h;
 
     for (int j = 0; j < surface->h; j++)
     for (int i = 0; i < surface->w; i++)
     {
         if ( (j < HEIGHT_OVER_WIDTH * i) )
         {
-            *((Uint8*) surface->pixels + j * surface->pitch + i * surface->format->BytesPerPixel) =
-                *((Uint8*) surface->pixels + (surface->h - j) * surface->pitch + (surface->w - i) * surface->format->BytesPerPixel);
+            Uint32* dstPixel = (Uint32*) ((Uint8*) surface->pixels + j * surface->pitch + i * surface->format->BytesPerPixel);
+            Uint32* srcPixel = (Uint32*) ((Uint8*) surface->pixels + i * surface->pitch + j * surface->format->BytesPerPixel);
+
+            *dstPixel = *srcPixel;
         }
 
     }
 
-    //free(auxPixels);
     SDL_UnlockSurface(surface);
 
     return true;

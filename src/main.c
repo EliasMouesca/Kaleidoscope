@@ -22,6 +22,8 @@ int main()
     Uint64 nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
 
     SDL_Surface* imgSurface = IMG_Load("image.jpg");
+    Uint32 msCounter = 0;
+    Uint32 lastTick = SDL_GetTicks();
 
     while (!shutdown)
     {
@@ -37,6 +39,7 @@ int main()
         // Render
         if (SDL_GetTicks64() >= nextFrame)
         {
+            nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
             int windowWidth;
             int windowHeight;
             SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
@@ -45,12 +48,7 @@ int main()
                     SDL_PIXELFORMAT_RGBA8888, 
                     SDL_TEXTUREACCESS_TARGET, windowWidth, windowHeight);
 
-            //SDL_SetRenderTarget(mainRenderer, canvasTexture);
-
-            //SDL_SetRenderDrawColor(mainRenderer, 200, 200, 134, 0xff);
-            //SDL_RenderClear(mainRenderer);
-
-            int a = doKaleidoscoping(mainRenderer, imgSurface, canvasTexture);
+            int a = doKaleidoscoping(mainRenderer, imgSurface, canvasTexture, msCounter / 1000.0);
             if (a == false)
             {
                 puts(SDL_GetError());
@@ -61,6 +59,11 @@ int main()
             SDL_RenderCopy(mainRenderer, canvasTexture, NULL, NULL);
             SDL_RenderPresent(mainRenderer);
             SDL_DestroyTexture(canvasTexture);
+
+            msCounter += SDL_GetTicks() - lastTick;
+            lastTick = SDL_GetTicks();
+            if (msCounter >= 1000) msCounter = 0;
+
         }
         else SDL_Delay(5);
     }
