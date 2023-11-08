@@ -3,21 +3,30 @@
 #include <assert.h>
 #include <stdio.h>
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    const uint32_t R_MASK = 0xff000000;
-    const uint32_t G_MASK = 0x00ff0000;
-    const uint32_t B_MASK = 0x0000ff00;
-    const uint32_t A_MASK = 0x000000ff;
-#else
-    const uint32_t R_MASK = 0x000000ff;
-    const uint32_t G_MASK = 0x0000ff00;
-    const uint32_t B_MASK = 0x00ff0000;
-    const uint32_t A_MASK = 0xff000000;
-#endif
+extern int R_MASK;
+extern int G_MASK;
+extern int B_MASK;
+extern int A_MASK;
 
 bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* dstTexture, double phase)
 {
-    if ( (ren == NULL) | (dstTexture == NULL) ) return false;
+    if (ren == NULL) 
+    {
+        puts("render was null!\n");
+        return false;
+    }
+
+    if (srcSurface == NULL) 
+    {
+        puts("surface was null!\n");
+        return false;
+    }
+
+    if (dstTexture == NULL) 
+    {
+        puts("texture was null!\n");
+        return false;
+    }
 
     SDL_Texture* oldTarget = SDL_GetRenderTarget(ren);
 
@@ -28,17 +37,25 @@ bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* d
     SDL_Texture* bufferTexture = SDL_CreateTexture(ren, 
             SDL_PIXELFORMAT_RGBA8888,
             SDL_TEXTUREACCESS_TARGET, w, h);
-    if (bufferTexture == NULL) return false;
+    if (bufferTexture == NULL) 
+    {
+        puts("bufferTexture is NULL\n");
+        return false;
+    }
     
-    int maxSize = (w > h)? w : h;
+    int maxSize = (w > h) ? w : h;
     SDL_Texture* cornerTexture = NULL;
     SDL_Surface* cornerSurface = SDL_CreateRGBSurface(
-            0, maxSize / 2, maxSize / 2, 32, 
+            0, w / 2, h / 2, 32, 
             R_MASK, G_MASK, B_MASK, A_MASK);
     SDL_SetSurfaceBlendMode(cornerSurface, SDL_BLENDMODE_NONE);
 
     // LOAD "cornerSurface" and mirror diagonally
-    if (SDL_BlitSurface(srcSurface, NULL, cornerSurface, NULL) < 0) return false;
+    if (SDL_BlitSurface(srcSurface, NULL, cornerSurface, NULL) < 0)
+    {
+        puts("SDL_BlitSurface failed! \n");
+        return false;
+    }
     mirrorDiagonally(cornerSurface);
 
     // CONVERT "cornerSurface" TO TEXTURE

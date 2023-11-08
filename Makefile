@@ -1,5 +1,5 @@
 CFLAGS=-Wall
-LDFLAGS=-lSDL2 -lSDL2main -lSDL2_image
+LDFLAGS=-lm -lSDL2 -lSDL2main -lSDL2_image
 EXECUTABLE=kaleidoscope
 
 OBJDIR=./obj
@@ -11,7 +11,7 @@ OBJFILES:=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCFILES))
 $(EXECUTABLE): $(OBJFILES)
 	gcc -o $@ $^ $(LDFLAGS)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
+$(OBJDIR)/%.o: $(SRCDIR)/%.c 
 	gcc -ggdb -c -o $@ $^ $(CFLAGS)
 
 clean:
