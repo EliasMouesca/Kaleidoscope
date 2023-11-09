@@ -55,14 +55,30 @@ int main(int argc, char* argv[])
 
     // Set icon
     SDL_Surface* iconSurface = IMG_Load("icon.png");
-    SDL_SetWindowIcon(programWindow, iconSurface);
-    SDL_FreeSurface(iconSurface);
+    if (iconSurface == NULL) puts("Could not load icon.png");
+    else
+    {
+        SDL_SetWindowIcon(programWindow, iconSurface);
+        SDL_FreeSurface(iconSurface);
+    }
 
     // Variables for the loop
     bool shutdown = false;
     Uint64 nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
 
     SDL_Surface* imgSurface = IMG_Load("image");
+    if (imgSurface == NULL) 
+    {
+        puts("Could not load 'image' file");
+
+        SDL_DestroyRenderer(mainRenderer);
+        SDL_DestroyWindow(programWindow);
+
+        IMG_Quit();
+        SDL_Quit();
+
+        return 1;
+    }
 
     srand(time(NULL));
 
@@ -150,6 +166,9 @@ int main(int argc, char* argv[])
     SDL_FreeSurface(imgSurface);
 
     // Finish
+    SDL_DestroyRenderer(mainRenderer);
+    SDL_DestroyWindow(programWindow);
+
     IMG_Quit();
     SDL_Quit();
 
