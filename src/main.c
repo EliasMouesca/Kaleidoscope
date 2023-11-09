@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     SDL_Renderer* mainRenderer = SDL_CreateRenderer(programWindow, -1, 0);
 
     // Set icon
-    SDL_Surface* iconSurface = IMG_Load("icon.png");
+    SDL_Surface* iconSurface = IMG_Load(ICON_PATH);
     if (iconSurface == NULL) puts("Could not load icon.png");
     else
     {
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
     bool shutdown = false;
     Uint64 nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
 
-    SDL_Surface* imgSurface = IMG_Load("image");
+    SDL_Surface* imgSurface = IMG_Load(IMAGE_PATH);
     if (imgSurface == NULL) 
     {
         puts("Could not load 'image' file");

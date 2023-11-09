@@ -9,4 +9,6 @@ const int WINDOW_HEIGHT = 600;
 const double DX = 0.5;
 const double DY = 0.5;
 
+const char ICON_PATH[] = "./img/icon.png";
+const char IMAGE_PATH[] = "./img/image";
 
