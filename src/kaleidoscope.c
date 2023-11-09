@@ -8,7 +8,7 @@ extern int G_MASK;
 extern int B_MASK;
 extern int A_MASK;
 
-bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* dstTexture, double phase)
+bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* dstTexture)
 {
     if (ren == NULL) 
     {
@@ -43,10 +43,10 @@ bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* d
         return false;
     }
     
-    int maxSize = (w > h) ? w : h;
+    int maxSize = (w < h) ? w : h;
     SDL_Texture* cornerTexture = NULL;
     SDL_Surface* cornerSurface = SDL_CreateRGBSurface(
-            0, w / 2, h / 2, 32, 
+            0, maxSize / 2, maxSize / 2, 32, 
             R_MASK, G_MASK, B_MASK, A_MASK);
     SDL_SetSurfaceBlendMode(cornerSurface, SDL_BLENDMODE_NONE);
 
@@ -56,7 +56,11 @@ bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* d
         puts("SDL_BlitSurface failed! \n");
         return false;
     }
-    mirrorDiagonally(cornerSurface);
+
+    if (mirrorDiagonally(cornerSurface) == false)
+    {
+        puts("Diagonal mirror failed!\n");
+    }
 
     // CONVERT "cornerSurface" TO TEXTURE
     {
@@ -94,7 +98,7 @@ bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* d
 
     // Copy from bufferTexture to actual texture
     SDL_SetRenderTarget(ren, dstTexture);
-    SDL_RenderCopyEx(ren, bufferTexture, NULL, NULL, 0 * (phase * 360), NULL, SDL_FLIP_NONE);
+    SDL_RenderCopy(ren, bufferTexture, NULL, NULL);
 
     SDL_DestroyTexture(bufferTexture);
     SDL_SetRenderTarget(ren, oldTarget);
