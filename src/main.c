@@ -1,5 +1,11 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#ifdef WIN32
+    #include <SDL.h>
+    #include <SDL_image.h>
+#else
+    #include <SDL2/SDL.h>
+    #include <SDL2/SDL_image.h>
+#endif
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
@@ -24,39 +30,45 @@
 
 int main(int argc, char* argv[])
 {
-    bool fullscreen = true;
+    // Arguments
+    bool fullscreen = false;
     int flags = WINDOW_FLAGS;
 
     if (argc > 1)
     {
         if (strcmp(argv[1], "--fullscreen") == 0) fullscreen = true;
         else if (strcmp(argv[1], "--windowed") == 0) fullscreen = false;
-
-        if (fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
+
+    if (fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
     // Init
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
 
     SDL_Window* programWindow = SDL_CreateWindow(
-            "DEMO", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+            WINDOW_TITLE, 
+            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
             WINDOW_WIDTH, WINDOW_HEIGHT, flags);
+
     SDL_Renderer* mainRenderer = SDL_CreateRenderer(programWindow, -1, 0);
 
+    // Set icon
+    SDL_Surface* iconSurface = IMG_Load("icon.png");
+    SDL_SetWindowIcon(programWindow, iconSurface);
+    SDL_FreeSurface(iconSurface);
+
+    // Variables for the loop
     bool shutdown = false;
     Uint64 nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
 
-    SDL_Surface* imgSurface = IMG_Load("image.jpg");
-    Uint32 msCounter = 0;
-    const Uint32 MS_COUNTER_PERIOD = 20000; // Every 10'000 seconds it will reset
-    Uint32 lastTick = SDL_GetTicks();
+    SDL_Surface* imgSurface = IMG_Load("image");
 
     srand(time(NULL));
 
     double  x = rand() % (imgSurface->w - WINDOW_WIDTH / 2),    // x value for input from img
             y = rand() % (imgSurface->h - WINDOW_HEIGHT / 2),   // y value for input from img 
-            dx = DX,     // Tiny nudge added to x every ms 
+            dx = DX,     // Tiny nudge added to x every frame
             dy = DY;     // Idem dx for y
     const int X_UPPER_BOUND = imgSurface->w;
     const int Y_UPPER_BOUND = imgSurface->h;
@@ -130,10 +142,6 @@ int main(int argc, char* argv[])
 
             SDL_DestroyTexture(canvasTexture);
             SDL_FreeSurface(movingSurface);
-
-            msCounter += SDL_GetTicks() - lastTick;
-            lastTick = SDL_GetTicks();
-            if (msCounter >= MS_COUNTER_PERIOD) msCounter = 0;
 
         }
         else SDL_Delay(5);
