@@ -66,23 +66,26 @@ int main(int argc, char* argv[])
 
     // Variables for the loop
     bool shutdown = false;
+    int retValue = 0;
     Uint64 nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
 
     SDL_Surface* imgSurface = IMG_Load(IMAGE_PATH);
     if (imgSurface == NULL) 
     {
         puts("Could not load 'image' file");
+        retValue = 1;
+        goto exit;
+    }
 
-        SDL_DestroyRenderer(mainRenderer);
-        SDL_DestroyWindow(programWindow);
-
-        IMG_Quit();
-        SDL_Quit();
-
-        return 1;
+    if ( (imgSurface->w < 600) | (imgSurface->w < 600) )
+    {
+        puts("Images must be at least 600x600");
+        SDL_FreeSurface(imgSurface);
+        retValue = 1;
+        goto exit;
     }
     
-    SDL_SetWindowMaximumSize(programWindow, imgSurface->w * 2, imgSurface->h * 2);
+    SDL_SetWindowMaximumSize(programWindow, imgSurface->w, imgSurface->h);
 
     srand(time(NULL));
 
@@ -171,21 +174,20 @@ int main(int argc, char* argv[])
 
             SDL_DestroyTexture(canvasTexture);
             SDL_FreeSurface(movingSurface);
-
         }
-        //(else SDL_Delay(5);
     }
 
     SDL_FreeSurface(imgSurface);
 
     // Finish
+exit:
     SDL_DestroyRenderer(mainRenderer);
     SDL_DestroyWindow(programWindow);
 
     IMG_Quit();
     SDL_Quit();
 
-    return 0;
+    return retValue;
 
 }
 
