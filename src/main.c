@@ -50,6 +50,8 @@ int main(int argc, char* argv[])
             WINDOW_TITLE, 
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
             WINDOW_WIDTH, WINDOW_HEIGHT, flags);
+    int windowWidth;
+    int windowHeight;
 
     SDL_Renderer* mainRenderer = SDL_CreateRenderer(programWindow, -1, 0);
 
@@ -79,17 +81,23 @@ int main(int argc, char* argv[])
 
         return 1;
     }
+    
+    SDL_SetWindowMaximumSize(programWindow, imgSurface->w * 2, imgSurface->h * 2);
 
     srand(time(NULL));
 
-    double  x = rand() % (imgSurface->w - WINDOW_WIDTH / 2),    // x value for input from img
-            y = rand() % (imgSurface->h - WINDOW_HEIGHT / 2),   // y value for input from img 
-            dx = DX,     // Tiny nudge added to x every frame
+    SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
+    double  x = rand() % (imgSurface->w - windowWidth / 2),    // x value for input from img
+            y = rand() % (imgSurface->h - windowHeight / 2),   // y value for input from img 
+            dx = DX,     // Tiny nudge added to x every ms
             dy = DY;     // Idem dx for y
     const int X_UPPER_BOUND = imgSurface->w;
     const int Y_UPPER_BOUND = imgSurface->h;
 
-    while (!shutdown)
+    Uint32 lastTick = SDL_GetTicks();
+    Uint32 currentTick;
+
+    while (!shutdown) 
     {
         SDL_Event eventPoll;
 
@@ -97,11 +105,43 @@ int main(int argc, char* argv[])
 
         if (eventPoll.type == SDL_QUIT) shutdown = true;
 
+        // Calculate x and y for input image
+        if ( (currentTick = SDL_GetTicks()) > lastTick)
+        {
+            lastTick = currentTick;
+            SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
+            x += dx;
+            y += dy;
+        }
+
+        if (x + windowWidth / 2 >= X_UPPER_BOUND)
+        {
+            x = X_UPPER_BOUND - windowWidth / 2 - 1;
+            dx *= -1;
+        }
+
+        if (x < 0)
+        {
+            x = 0;
+            dx *= -1;
+        }
+
+        if (y + windowHeight / 2 >= Y_UPPER_BOUND)
+        {
+            y = Y_UPPER_BOUND - windowHeight / 2 - 1;
+            dy *= -1;
+        }
+
+        if (y < 0)
+        {
+            y = 0;
+            dy *= -1;
+        }
+
         if (SDL_GetTicks64() >= nextFrame)
         {
             nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
-            int windowWidth;
-            int windowHeight;
+
             SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
 
             // This suruface will be jumping around the image with a fix size
@@ -112,33 +152,6 @@ int main(int argc, char* argv[])
                     SDL_PIXELFORMAT_RGBA8888, 
                     SDL_TEXTUREACCESS_TARGET, windowWidth, windowHeight);
 
-            // Calculate x and y for input image
-            x += dx;
-            y += dy;
-
-            if (x + windowWidth / 2 >= X_UPPER_BOUND)
-            {
-                x = X_UPPER_BOUND - windowWidth / 2 - 1;
-                dx *= -1;
-            }
-
-            if (x < 0)
-            {
-                x = 0;
-                dx *= -1;
-            }
-
-            if (y + windowHeight / 2 >= Y_UPPER_BOUND)
-            {
-                y = Y_UPPER_BOUND - windowHeight / 2 - 1;
-                dy *= -1;
-            }
-
-            if (y < 0)
-            {
-                y = 0;
-                dy *= -1;
-            }
 
             // Copy from the imgSurface to the movingSurface
             SDL_Rect position = {x, y, windowWidth / 2, windowHeight / 2};
@@ -160,7 +173,7 @@ int main(int argc, char* argv[])
             SDL_FreeSurface(movingSurface);
 
         }
-        else SDL_Delay(5);
+        //(else SDL_Delay(5);
     }
 
     SDL_FreeSurface(imgSurface);

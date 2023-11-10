@@ -1,6 +1,6 @@
 # Kaleidoscope
 ## What?
-A kaleidoscope program! it does not reflect in hexagon shape (I didn't know how to do it, maybe in the future?), it mirrors a section jumping around the image diagonally, then vertically and horizontally. The image can be any image, png o jpeg.
+A kaleidoscope program! it does not reflect in hexagon shape (I didn't know how to do it, maybe in the future?), it mirrors a section jumping around the image diagonally, then vertically and horizontally. The image can be any image with height larger than half window height and the same for width, png o jpeg.
 
 ![image1](./img/readme1.png)
 ![image2](./img/readme2.png)
