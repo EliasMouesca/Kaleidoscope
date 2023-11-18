@@ -92,30 +92,23 @@ int main(int argc, char* argv[])
     SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
     double  x = rand() % (imgSurface->w - windowWidth / 2),    // x value for input from img
             y = rand() % (imgSurface->h - windowHeight / 2),   // y value for input from img 
-            dx = DX,     // Tiny nudge added to x every ms
+            dx = DX,     // Tiny nudge added to x every frame
             dy = DY;     // Idem dx for y
     const int X_UPPER_BOUND = imgSurface->w;
     const int Y_UPPER_BOUND = imgSurface->h;
 
-    Uint32 lastTick = SDL_GetTicks();
-    Uint32 currentTick;
-
     while (!shutdown) 
     {
+        Uint64 firstTick = SDL_GetTicks64();
+
         SDL_Event eventPoll;
-
         SDL_PollEvent(&eventPoll);
-
         if (eventPoll.type == SDL_QUIT) shutdown = true;
 
         // Calculate x and y for input image
-        if ( (currentTick = SDL_GetTicks()) > lastTick)
-        {
-            lastTick = currentTick;
             SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
             x += dx;
             y += dy;
-        }
 
         if (x + windowWidth / 2 >= X_UPPER_BOUND)
         {
@@ -141,40 +134,46 @@ int main(int argc, char* argv[])
             dy *= -1;
         }
 
-        if (SDL_GetTicks64() >= nextFrame)
+        nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
+
+        SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
+
+        // This suruface will be jumping around the image with a fix size
+        SDL_Surface* movingSurface = SDL_CreateRGBSurface(0, windowWidth / 2, windowHeight / 2, 32, R_MASK, G_MASK, B_MASK, A_MASK);
+
+        // This texture will eventually be rendered to screen
+        SDL_Texture* canvasTexture = SDL_CreateTexture(mainRenderer, 
+                SDL_PIXELFORMAT_RGBA8888, 
+                SDL_TEXTUREACCESS_TARGET, windowWidth, windowHeight);
+
+
+        // Copy from the imgSurface to the movingSurface
+        SDL_Rect position = {x, y, windowWidth / 2, windowHeight / 2};
+        SDL_BlitSurface(imgSurface, &position, movingSurface, NULL);
+
+        // Take the render and the input in movingSurface, do kaleidoscope and put it in the canvasTexture
+        if (doKaleidoscoping(mainRenderer, movingSurface, canvasTexture) == false)
         {
-            nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
-
-            SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
-
-            // This suruface will be jumping around the image with a fix size
-            SDL_Surface* movingSurface = SDL_CreateRGBSurface(0, windowWidth / 2, windowHeight / 2, 32, R_MASK, G_MASK, B_MASK, A_MASK);
-
-            // This texture will eventually be rendered to screen
-            SDL_Texture* canvasTexture = SDL_CreateTexture(mainRenderer, 
-                    SDL_PIXELFORMAT_RGBA8888, 
-                    SDL_TEXTUREACCESS_TARGET, windowWidth, windowHeight);
-
-
-            // Copy from the imgSurface to the movingSurface
-            SDL_Rect position = {x, y, windowWidth / 2, windowHeight / 2};
-            SDL_BlitSurface(imgSurface, &position, movingSurface, NULL);
-
-            // Take the render and the input in movingSurface, do kaleidoscope and put it in the canvasTexture
-            if (doKaleidoscoping(mainRenderer, movingSurface, canvasTexture) == false)
-            {
-                printf("doKaleidoscoping failed! error: %s\n", SDL_GetError());
-                return 1;
-            }
-
-            // Render the canvasTexture to the screen
-            SDL_SetRenderTarget(mainRenderer, NULL);
-            SDL_RenderCopy(mainRenderer, canvasTexture, NULL, NULL);
-            SDL_RenderPresent(mainRenderer);
-
-            SDL_DestroyTexture(canvasTexture);
-            SDL_FreeSurface(movingSurface);
+            printf("doKaleidoscoping failed! error: %s\n", SDL_GetError());
+            return 1;
         }
+
+        // Render the canvasTexture to the screen
+        SDL_SetRenderTarget(mainRenderer, NULL);
+        SDL_RenderCopy(mainRenderer, canvasTexture, NULL, NULL);
+        SDL_RenderPresent(mainRenderer);
+
+        SDL_DestroyTexture(canvasTexture);
+        SDL_FreeSurface(movingSurface);
+
+        Uint64 currentTick = SDL_GetTicks64();
+        Uint64 deltaTime = currentTick - firstTick;
+        printf("deltaTime: %ld\n", deltaTime);
+        printf("1000.0 / WINDOW_FPS: %lf\n\n", 1000.0 / WINDOW_FPS);
+        fflush(stdin);
+
+        SDL_Delay(1000.0 / WINDOW_FPS - (deltaTime));
+
     }
 
     SDL_FreeSurface(imgSurface);
