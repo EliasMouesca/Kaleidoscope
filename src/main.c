@@ -96,6 +96,7 @@ int main(int argc, char* argv[])
     const int X_UPPER_BOUND = imgSurface->w;
     const int Y_UPPER_BOUND = imgSurface->h;
 
+
     while (!shutdown) 
     {
         Uint64 firstTick = SDL_GetTicks64();
@@ -174,7 +175,6 @@ int main(int argc, char* argv[])
         }
 
         SDL_Delay(DELTA_TIME - timePassed);
-
     }
 
     SDL_FreeSurface(imgSurface);
