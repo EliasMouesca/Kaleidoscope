@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include <assert.h>
+#include <time.h>
 
 #include "Constants.h"
 #include "kaleidoscope.h"
@@ -89,16 +90,24 @@ int main(int argc, char* argv[])
     srand(time(NULL));
 
     SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
-    double  x = rand() % (imgSurface->w - windowWidth / 2),    // x value for input from img
+    floatType  x = rand() % (imgSurface->w - windowWidth / 2),    // x value for input from img
             y = rand() % (imgSurface->h - windowHeight / 2),   // y value for input from img 
             dx = DX,     // Tiny nudge added to x every frame
             dy = DY;     // Idem dx for y
     const int X_UPPER_BOUND = imgSurface->w;
     const int Y_UPPER_BOUND = imgSurface->h;
 
+    // DEBUG
+    int frameCount = 0;
+    int period = 64;
 
     while (!shutdown) 
     {
+        clock_t waitTime[period];
+        // DEBUG
+        clock_t timerStart = clock();
+        // DEBUG
+
         Uint64 firstTick = SDL_GetTicks64();
 
         SDL_Event eventPoll;
@@ -173,6 +182,19 @@ int main(int argc, char* argv[])
             retValue = -1;
             goto exit;
         }
+
+        // DEBUG
+        clock_t timerEnd = clock();
+        waitTime[frameCount++] = timerEnd - timerStart;
+        if (frameCount == period)
+        {
+            frameCount = 0;
+            clock_t accum = 0;
+            for (int i = 0; i < period; i++)
+                accum += waitTime[i];
+            printf("CPU TIME: %f\n", (float) accum / period);
+        }
+        // DEBUG
 
         SDL_Delay(DELTA_TIME - timePassed);
     }

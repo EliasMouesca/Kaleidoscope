@@ -124,7 +124,6 @@ bool mirrorDiagonally(SDL_Surface* surface)
 
             *dstPixel = *srcPixel;
         }
-
     }
 
     SDL_UnlockSurface(surface);
