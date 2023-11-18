@@ -67,7 +67,6 @@ int main(int argc, char* argv[])
     // Variables for the loop
     bool shutdown = false;
     int retValue = 0;
-    Uint64 nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
 
     SDL_Surface* imgSurface = IMG_Load(IMAGE_PATH);
     if (imgSurface == NULL) 
@@ -134,8 +133,6 @@ int main(int argc, char* argv[])
             dy *= -1;
         }
 
-        nextFrame = SDL_GetTicks64() + 1000 / WINDOW_FPS;
-
         SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
 
         // This suruface will be jumping around the image with a fix size
@@ -167,12 +164,16 @@ int main(int argc, char* argv[])
         SDL_FreeSurface(movingSurface);
 
         Uint64 currentTick = SDL_GetTicks64();
-        Uint64 deltaTime = currentTick - firstTick;
-        printf("deltaTime: %ld\n", deltaTime);
-        printf("1000.0 / WINDOW_FPS: %lf\n\n", 1000.0 / WINDOW_FPS);
-        fflush(stdin);
+        Uint64 timePassed = currentTick - firstTick;
 
-        SDL_Delay(1000.0 / WINDOW_FPS - (deltaTime));
+        if (timePassed > DELTA_TIME)
+        {
+            printf("The time between last 2 frames (%ldms) surpassed the time expected to mantain the FPS rate (1000 / FPS = %lfms) => FPS should be lowered! (recompiling)\n", timePassed, DELTA_TIME);
+            retValue = -1;
+            goto exit;
+        }
+
+        SDL_Delay(DELTA_TIME - timePassed);
 
     }
 
