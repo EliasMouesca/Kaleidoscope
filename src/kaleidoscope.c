@@ -8,6 +8,8 @@ extern int G_MASK;
 extern int B_MASK;
 extern int A_MASK;
 
+typedef float floatType;
+
 bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* dstTexture)
 {
     if (ren == NULL) 
@@ -117,7 +119,7 @@ bool mirrorDiagonally(SDL_Surface* surface)
     for (int j = 0; j < surface->h; j++)
     for (int i = 0; i < surface->w; i++)
     {
-        if ( (j < HEIGHT_OVER_WIDTH * i) )
+        if ( j < HEIGHT_OVER_WIDTH * i )
         {
             Uint32* dstPixel = (Uint32*) ((Uint8*) surface->pixels + j * surface->pitch + i * surface->format->BytesPerPixel);
             Uint32* srcPixel = (Uint32*) ((Uint8*) surface->pixels + i * surface->pitch + j * surface->format->BytesPerPixel);
@@ -131,3 +133,27 @@ bool mirrorDiagonally(SDL_Surface* surface)
     return true;
 }
 
+bool mirrorDiagonallyB(SDL_Surface* surface)
+{
+    if (surface->w != surface->h) return false;
+
+    SDL_LockSurface(surface);
+
+    const int HEIGHT_OVER_WIDTH = surface->h / surface->w;
+
+    for (int j = 0; j < surface->h; j++)
+    for (int i = 0; i < surface->w; i++)
+    {
+        if ( j < HEIGHT_OVER_WIDTH * i )
+        {
+            Uint32* dstPixel = (Uint32*) ((Uint8*) surface->pixels + j * surface->pitch + i * surface->format->BytesPerPixel);
+            Uint32* srcPixel = (Uint32*) ((Uint8*) surface->pixels + i * surface->pitch + j * surface->format->BytesPerPixel);
+
+            *dstPixel = *srcPixel;
+        }
+    }
+
+    SDL_UnlockSurface(surface);
+
+    return true;
+}

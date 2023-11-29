@@ -11,6 +11,11 @@ OBJFILES:=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCFILES))
 $(EXECUTABLE): $(OBJFILES)
 	gcc -o $@ $^ $(LDFLAGS)
 
+test: $(SRCDIR)/test.c $(SRCDIR)/kaleidoscope.c
+	gcc $^ -o test $(LDFLAGS)
+	./test
+	rm test
+
 $(OBJDIR)/kaleidoscope.o: $(SRCDIR)/kaleidoscope.c 
 	gcc -ggdb -c -o $@ $^ $(CFLAGS)
 

@@ -176,12 +176,15 @@ int main(int argc, char* argv[])
         Uint64 currentTick = SDL_GetTicks64();
         Uint64 timePassed = currentTick - firstTick;
 
+
+        /*
         if (timePassed > DELTA_TIME)
         {
             printf("The time between last 2 frames (%ldms) surpassed the time expected to mantain the FPS rate (1000 / FPS = %lfms) => FPS should be lowered! (recompiling)\n", timePassed, DELTA_TIME);
-            retValue = -1;
-            goto exit;
         }
+        */
+
+        if (timePassed < DELTA_TIME) SDL_Delay(DELTA_TIME - timePassed);
 
         // DEBUG
         clock_t timerEnd = clock();
@@ -196,7 +199,6 @@ int main(int argc, char* argv[])
         }
         // DEBUG
 
-        SDL_Delay(DELTA_TIME - timePassed);
     }
 
     SDL_FreeSurface(imgSurface);

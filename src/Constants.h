@@ -1,9 +1,9 @@
 #include <SDL2/SDL.h>
 
-typedef double floatType;
+typedef float floatType;
 
 const char WINDOW_TITLE[] = "Kaleidoscope";
-const int WINDOW_FPS = 120;
+const int WINDOW_FPS = 60;
 const floatType DELTA_TIME = 1000.0 / WINDOW_FPS;
 const Uint32 WINDOW_FLAGS = SDL_WINDOW_RESIZABLE;
 const int WINDOW_WIDTH = 600;

@@ -9,4 +9,5 @@
 bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* dstTexture);
 
 bool mirrorDiagonally(SDL_Surface* surface);
+bool mirrorDiagonallyB(SDL_Surface* surface);
 
