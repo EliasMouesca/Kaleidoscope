@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <time.h>
+#include <pthread.h>
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     const uint32_t R_MASK = 0xff000000;
@@ -17,28 +18,44 @@
 
 const int times = 10000;
 
-int main()
+void* testA(void* surface)
 {
-    clock_t before, after;
-    printf("Beginning mirrorDiagonally() tests...\n");
-
-    SDL_Surface* cornerSurface = SDL_CreateRGBSurface(
-            0, 600, 600, 32, 
-            R_MASK, G_MASK, B_MASK, A_MASK);
-    SDL_SetSurfaceBlendMode(cornerSurface, SDL_BLENDMODE_NONE);
-
-    before = clock();
+    clock_t before = clock();
     for (int i = 0; i < times; i++)
-        mirrorDiagonallyA(cornerSurface);
-    after = clock();
+        mirrorDiagonallyA(surface);
+    clock_t after = clock();
     printf("Without optimization: %lf CPU cicles.\n", (double) (after - before) / times);
 
-    before = clock();
+    return NULL;
+}
+
+void* testB(void* surface)
+{
+    clock_t before = clock();
     for (int i = 0; i < times; i++)
-        mirrorDiagonally(cornerSurface);
-    after = clock();
+        mirrorDiagonally(surface);
+    clock_t after = clock();
 
     printf("Optimized: %lf CPU cicles.\n", (double) (after - before) / times);
+
+    return NULL;
+}
+
+int main()
+{
+    printf("Beginning mirrorDiagonally() tests...\n");
+
+    SDL_Surface* surface = SDL_CreateRGBSurface(
+            0, 600, 600, 32, 
+            R_MASK, G_MASK, B_MASK, A_MASK);
+    SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+
+    pthread_t threadA, threadB;
+    pthread_create(&threadA, NULL, &testA, surface);
+    pthread_create(&threadB, NULL, &testB, surface);
+
+    pthread_join(threadA, NULL);
+    pthread_join(threadB, NULL);
 
     return 0;
 }

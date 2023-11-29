@@ -12,7 +12,7 @@ $(EXECUTABLE): $(OBJFILES)
 	gcc -o $@ $^ $(LDFLAGS)
 
 test: test.c $(SRCDIR)/kaleidoscope.c
-	gcc $^ -o test $(LDFLAGS)
+	gcc $^ -o test $(LDFLAGS) -lpthread
 	./test
 	rm test
 
