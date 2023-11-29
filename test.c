@@ -16,7 +16,7 @@
     const uint32_t A_MASK = 0xff000000;
 #endif
 
-const int times = 10000;
+#define times 10000
 
 void* testA(void* surface)
 {
@@ -46,7 +46,7 @@ int main()
     printf("Beginning mirrorDiagonally() tests...\n");
 
     SDL_Surface* surface = SDL_CreateRGBSurface(
-            0, 600, 600, 32, 
+            0, 1000, 1000, 32, 
             R_MASK, G_MASK, B_MASK, A_MASK);
     SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
 
