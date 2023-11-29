@@ -108,24 +108,19 @@ bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* d
     return true;
 }
 
-bool mirrorDiagonally(SDL_Surface* surface)
+bool mirrorDiagonallyA(SDL_Surface* surface)
 {
     if (surface->w != surface->h) return false;
 
     SDL_LockSurface(surface);
 
-    const double HEIGHT_OVER_WIDTH = (double) surface->h / (double) surface->w;
-
     for (int j = 0; j < surface->h; j++)
-    for (int i = 0; i < surface->w; i++)
+    for (int i = j; i < surface->w; i++)
     {
-        if ( j < HEIGHT_OVER_WIDTH * i )
-        {
-            Uint32* dstPixel = (Uint32*) ((Uint8*) surface->pixels + j * surface->pitch + i * surface->format->BytesPerPixel);
-            Uint32* srcPixel = (Uint32*) ((Uint8*) surface->pixels + i * surface->pitch + j * surface->format->BytesPerPixel);
+        Uint32* srcPixel = (Uint32*) surface->pixels + i * surface->w + j;
+        Uint32* dstPixel = (Uint32*) surface->pixels + j * surface->w + i;
 
-            *dstPixel = *srcPixel;
-        }
+        *dstPixel = *srcPixel;
     }
 
     SDL_UnlockSurface(surface);
@@ -133,24 +128,19 @@ bool mirrorDiagonally(SDL_Surface* surface)
     return true;
 }
 
-bool mirrorDiagonallyB(SDL_Surface* surface)
+bool mirrorDiagonally(SDL_Surface* surface)
 {
     if (surface->w != surface->h) return false;
 
     SDL_LockSurface(surface);
 
-    const int HEIGHT_OVER_WIDTH = surface->h / surface->w;
-
     for (int j = 0; j < surface->h; j++)
-    for (int i = 0; i < surface->w; i++)
+    for (int i = j; i < surface->w; i++)
     {
-        if ( j < HEIGHT_OVER_WIDTH * i )
-        {
-            Uint32* dstPixel = (Uint32*) ((Uint8*) surface->pixels + j * surface->pitch + i * surface->format->BytesPerPixel);
-            Uint32* srcPixel = (Uint32*) ((Uint8*) surface->pixels + i * surface->pitch + j * surface->format->BytesPerPixel);
+        Uint32* srcPixel = (Uint32*) surface->pixels + i * surface->w + j;
+        Uint32* dstPixel = (Uint32*) surface->pixels + j * surface->w + i;
 
-            *dstPixel = *srcPixel;
-        }
+        *dstPixel = *srcPixel;
     }
 
     SDL_UnlockSurface(surface);

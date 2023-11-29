@@ -11,7 +11,7 @@ OBJFILES:=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCFILES))
 $(EXECUTABLE): $(OBJFILES)
 	gcc -o $@ $^ $(LDFLAGS)
 
-test: $(SRCDIR)/test.c $(SRCDIR)/kaleidoscope.c
+test: test.c $(SRCDIR)/kaleidoscope.c
 	gcc $^ -o test $(LDFLAGS)
 	./test
 	rm test

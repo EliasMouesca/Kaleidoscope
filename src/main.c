@@ -97,17 +97,8 @@ int main(int argc, char* argv[])
     const int X_UPPER_BOUND = imgSurface->w;
     const int Y_UPPER_BOUND = imgSurface->h;
 
-    // DEBUG
-    int frameCount = 0;
-    int period = 64;
-
     while (!shutdown) 
     {
-        clock_t waitTime[period];
-        // DEBUG
-        clock_t timerStart = clock();
-        // DEBUG
-
         Uint64 firstTick = SDL_GetTicks64();
 
         SDL_Event eventPoll;
@@ -185,19 +176,6 @@ int main(int argc, char* argv[])
         */
 
         if (timePassed < DELTA_TIME) SDL_Delay(DELTA_TIME - timePassed);
-
-        // DEBUG
-        clock_t timerEnd = clock();
-        waitTime[frameCount++] = timerEnd - timerStart;
-        if (frameCount == period)
-        {
-            frameCount = 0;
-            clock_t accum = 0;
-            for (int i = 0; i < period; i++)
-                accum += waitTime[i];
-            printf("CPU TIME: %f\n", (float) accum / period);
-        }
-        // DEBUG
 
     }
 

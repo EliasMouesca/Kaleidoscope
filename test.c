@@ -1,4 +1,4 @@
-#include "kaleidoscope.h"
+#include "src/kaleidoscope.h"
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <time.h>
@@ -15,12 +15,12 @@
     const uint32_t A_MASK = 0xff000000;
 #endif
 
-const int times = 1000;
+const int times = 10000;
 
 int main()
 {
     clock_t before, after;
-    printf("Beginning tests...\n");
+    printf("Beginning mirrorDiagonally() tests...\n");
 
     SDL_Surface* cornerSurface = SDL_CreateRGBSurface(
             0, 600, 600, 32, 
@@ -29,16 +29,16 @@ int main()
 
     before = clock();
     for (int i = 0; i < times; i++)
-        mirrorDiagonally(cornerSurface);
+        mirrorDiagonallyA(cornerSurface);
     after = clock();
-    printf("Without optimization: %lf CPU cicles.\n", (double) (after - before) / times, times);
+    printf("Without optimization: %lf CPU cicles.\n", (double) (after - before) / times);
 
     before = clock();
     for (int i = 0; i < times; i++)
-        mirrorDiagonallyB(cornerSurface);
+        mirrorDiagonally(cornerSurface);
     after = clock();
 
-    printf("Optimized: %lf CPU cicles.\n", (double) (after - before) / times, times);
+    printf("Optimized: %lf CPU cicles.\n", (double) (after - before) / times);
 
     return 0;
 }
