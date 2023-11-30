@@ -206,7 +206,27 @@ bool doKaleidoscoping(SDL_Renderer* ren, SDL_Surface* srcSurface, SDL_Texture* d
     return true;
 }
 
-// This was the fastest implementation I could write, don't touch it unless measuring performance!
+bool mirrorDiagonallyA(SDL_Surface* surface)
+{
+    if (surface->w != surface->h) return false;
+
+    SDL_LockSurface(surface);
+
+    for (int j = 0; j < surface->h; j++)
+    for (int i = j; i < surface->w; i++)
+    {
+        Uint32* srcPixel = (Uint32*) surface->pixels + i * surface->w + j;
+        Uint32* dstPixel = (Uint32*) surface->pixels + j * surface->w + i;
+
+        *dstPixel = *srcPixel;
+    }
+
+    SDL_UnlockSurface(surface);
+
+    return true;
+}
+
+// This was the fastest implementation I could write, don't touch it unless re measuring performance!
 bool mirrorDiagonally(SDL_Surface* surface)
 {
     if (surface->w != surface->h) return false;

@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 
     while (!shutdown) 
     {
-        Uint64 firstTick = SDL_GetTicks64();
+        clock_t firstTick = clock();
 
         SDL_Event eventPoll;
         SDL_PollEvent(&eventPoll);
@@ -164,20 +164,28 @@ int main(int argc, char* argv[])
         SDL_DestroyTexture(canvasTexture);
         SDL_FreeSurface(movingSurface);
 
-        Uint64 currentTick = SDL_GetTicks64();
-        Uint64 timePassed = currentTick - firstTick;
-
-
-        /*
+        clock_t currentTick = clock();
+        double timePassed = (double) (currentTick - firstTick) * 1000.0 / CLOCKS_PER_SEC;
+        static int FRAMES_SINCE_LAST_OVERFLOW = 0;
+        static int OVERFLOW_COUNTER = 0;
         if (timePassed > DELTA_TIME)
         {
-            printf("The time between last 2 frames (%ldms) surpassed the time expected to mantain the FPS rate (1000 / FPS = %lfms) => FPS should be lowered! (recompiling)\n", timePassed, DELTA_TIME);
+            FRAMES_SINCE_LAST_OVERFLOW = 0;
+            if (++OVERFLOW_COUNTER > OVERFLOW_TOLERANCE)
+            {
+
+                printf("The time between frames surpassed the delta time expected to mantain the FPS rate (1000 / FPS = %lfms) several times => FPS should be lowered! (recompiling)\n", DELTA_TIME);
+                retValue = 1;
+                goto exit;
+            }
         }
-        */
+        else 
+        {
+            if (++FRAMES_SINCE_LAST_OVERFLOW > OVERFLOW_WINDOW) OVERFLOW_COUNTER = 0;
+            SDL_Delay(DELTA_TIME - timePassed);
+        }
 
-        if (timePassed < DELTA_TIME) SDL_Delay(DELTA_TIME - timePassed);
-
-    }
+    } // End while(!shutdown)
 
     SDL_FreeSurface(imgSurface);
 
