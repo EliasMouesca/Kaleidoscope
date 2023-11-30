@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
         if (timePassed > DELTA_TIME)
         {
             FRAMES_SINCE_LAST_OVERFLOW = 0;
-            if (++OVERFLOW_COUNTER > OVERFLOW_TOLERANCE)
+            if ( (++OVERFLOW_COUNTER > OVERFLOW_TOLERANCE) && (SDL_GetTicks() > INITIALIZATION_TIME) )
             {
 
                 printf("The time between frames surpassed the delta time expected to mantain the FPS rate (1000 / FPS = %lfms) several times => FPS should be lowered! (recompiling)\n", DELTA_TIME);
