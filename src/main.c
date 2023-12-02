@@ -113,25 +113,25 @@ int main(int argc, char* argv[])
         if (x + windowWidth / 2 >= X_UPPER_BOUND)
         {
             x = X_UPPER_BOUND - windowWidth / 2 - 1;
-            dx *= -1;
+            dx *= -1.0f;
         }
 
         if (x < 0)
         {
             x = 0;
-            dx *= -1;
+            dx *= -1.0f;
         }
 
         if (y + windowHeight / 2 >= Y_UPPER_BOUND)
         {
             y = Y_UPPER_BOUND - windowHeight / 2 - 1;
-            dy *= -1;
+            dy *= -1.0f;
         }
 
         if (y < 0)
         {
             y = 0;
-            dy *= -1;
+            dy *= -1.0f;
         }
 
         SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
 
 
         // Copy from the imgSurface to the movingSurface
-        SDL_Rect position = {x, y, windowWidth / 2, windowHeight / 2};
+        SDL_Rect position = {(int) (x + 0.5f), (int) (y + 0.5f), windowWidth / 2, windowHeight / 2};
         SDL_BlitSurface(imgSurface, &position, movingSurface, NULL);
 
         // Take the render and the input in movingSurface, do kaleidoscope and put it in the canvasTexture
@@ -155,6 +155,7 @@ int main(int argc, char* argv[])
             printf("doKaleidoscoping failed! error: %s\n", SDL_GetError());
             return 1;
         }
+        
 
         // Render the canvasTexture to the screen
         SDL_SetRenderTarget(mainRenderer, NULL);
