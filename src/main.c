@@ -31,48 +31,61 @@
 
 int main(int argc, char* argv[])
 {
-    // Arguments
-    bool fullscreen = false;
-    int flags = WINDOW_FLAGS;
-
-    if (argc > 1)
-    {
-        if (strcmp(argv[1], "--fullscreen") == 0) fullscreen = true;
-        else if (strcmp(argv[1], "--windowed") == 0) fullscreen = false;
-    }
-
-    if (fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-
-    // Init
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
+    
+    // Main variables
+    SDL_Window* programWindow = NULL;
+    SDL_Renderer* mainRenderer = NULL;
+    SDL_Surface* imgSurface = NULL;
+    int windowWidth;
+    int windowHeight;
+    bool shutdown = false;
+    int retValue = 0;
+    floatType x = 0, y = 0, dx = 0, dy = 0;
+    int X_UPPER_BOUND = 0;
+    int Y_UPPER_BOUND = 0;
 
-    SDL_Window* programWindow = SDL_CreateWindow(
+    // Manage Arguments and create window
+    {
+        bool fullscreen = false;
+        int flags = WINDOW_FLAGS;
+
+        if (argc > 1)
+        {
+            if (strcmp(argv[1], "--fullscreen") == 0) fullscreen = true;
+            else if (strcmp(argv[1], "--windowed") == 0) fullscreen = false;
+        }
+
+        if (fullscreen) 
+        {
+            flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+            SDL_ShowCursor(SDL_DISABLE);
+        }
+
+        programWindow = SDL_CreateWindow(
             WINDOW_TITLE, 
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
             WINDOW_WIDTH, WINDOW_HEIGHT, flags);
-    int windowWidth;
-    int windowHeight;
-
-    SDL_Renderer* mainRenderer = SDL_CreateRenderer(programWindow, -1, 0);
-
-    // Set icon
-    SDL_Surface* iconSurface = IMG_Load(ICON_PATH);
-    if (iconSurface == NULL) puts("Could not load icon.png");
-    else
-    {
-        SDL_SetWindowIcon(programWindow, iconSurface);
-        SDL_FreeSurface(iconSurface);
     }
 
-    // Variables for the loop
-    bool shutdown = false;
-    int retValue = 0;
+    mainRenderer = SDL_CreateRenderer(programWindow, -1, 0);
 
-    SDL_Surface* imgSurface = IMG_Load(IMAGE_PATH);
+    // Set icon
+    {
+        SDL_Surface* iconSurface = IMG_Load(ICON_PATH);
+        if (iconSurface == NULL) puts("Could not load icon.png");
+        else
+        {
+            SDL_SetWindowIcon(programWindow, iconSurface);
+            SDL_FreeSurface(iconSurface);
+        }
+    }
+
+    imgSurface = IMG_Load(IMAGE_PATH);
     if (imgSurface == NULL) 
     {
-        puts("Could not load 'image' file");
+        puts("Could not load 'image' file. Maybe it isn't jpeg or png?");
         retValue = 1;
         goto exit;
     }
@@ -90,12 +103,12 @@ int main(int argc, char* argv[])
     srand(time(NULL));
 
     SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
-    floatType  x = rand() % (imgSurface->w - windowWidth / 2),    // x value for input from img
-            y = rand() % (imgSurface->h - windowHeight / 2),   // y value for input from img 
-            dx = DX,     // Tiny nudge added to x every frame
-            dy = DY;     // Idem dx for y
-    const int X_UPPER_BOUND = imgSurface->w;
-    const int Y_UPPER_BOUND = imgSurface->h;
+    x = rand() % (imgSurface->w - windowWidth / 2),     // x value for input from img
+    y = rand() % (imgSurface->h - windowHeight / 2),    // y value for input from img 
+    dx = DX,                                            // Tiny nudge added to x every frame
+    dy = DY;                                            // Idem dx for y
+    X_UPPER_BOUND = imgSurface->w;
+    Y_UPPER_BOUND = imgSurface->h;
 
     while (!shutdown) 
     {
@@ -106,9 +119,9 @@ int main(int argc, char* argv[])
         if (eventPoll.type == SDL_QUIT) shutdown = true;
 
         // Calculate x and y for input image
-            SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
-            x += dx;
-            y += dy;
+        SDL_GetWindowSize(programWindow, &windowWidth, &windowHeight);
+        x += dx;
+        y += dy;
 
         if (x + windowWidth / 2 >= X_UPPER_BOUND)
         {
@@ -155,7 +168,6 @@ int main(int argc, char* argv[])
             printf("doKaleidoscoping failed! error: %s\n", SDL_GetError());
             return 1;
         }
-        
 
         // Render the canvasTexture to the screen
         SDL_SetRenderTarget(mainRenderer, NULL);
