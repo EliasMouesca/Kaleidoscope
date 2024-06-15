@@ -6,7 +6,7 @@ A kaleidoscope program! it does not reflect in hexagon shape (I didn't know how 
 ![image2](./img/readme2.png)
 
 ## Usage
-By default the program runs windowed but flag "--fullscreen" makes it fullscreen. If you want to change the image it uses, just put an image in the "img" directory with the name "image" (no file extension) and the program will use that. Also, you can tweak the program by changing the "src/Constants.h" file, this requires recompiling (run make in the root folder).
+If you want to change the image it uses, just put an image in the "img" directory with the name "image" (no file extension) and the program will use that.
 
 ## Why?
 To entertain myself with something (though I should be studing...), and this way I don't have to search videos of kaleidoscopes in youtube and suffer the low resoution, framerate, and compression artifacts.
@@ -15,5 +15,9 @@ To entertain myself with something (though I should be studing...), and this way
 You should have SDL2 main and image library installed. The packages may be called libsdl2-dev and libsdl2-image-dev.
 
 ## Installation
-just "make" should "install" (generate the binary and put it in the same diretory) it. It should compile and run on windows, did not test it.
+just "make" should "install" (generate the binary and put it in the same directory) it. I do have the intention of making this available in mswindows, I don't plan do in it soon though.
+
+## More info
+This is actually Kaleidoscope V2. It's really similar to version 1 but this one calculates the next frame based on the time that has passed since the last update, doing it this way, it solved an artifact that would show up if the cpu got busy with something else, runining the smoothness of the program.
+
 

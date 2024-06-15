@@ -1,24 +1,27 @@
 CFLAGS=-Wall
 LDFLAGS=-lm -lSDL2 -lSDL2main -lSDL2_image
 EXECUTABLE=kaleidoscope
+CC=g++
 
 OBJDIR=./obj
 SRCDIR=./src
 
-SRCFILES:=$(wildcard $(SRCDIR)/*.c)
-OBJFILES:=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCFILES))
+SRCFILES:=$(wildcard $(SRCDIR)/*.cpp)
+OBJFILES:=$(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCFILES))
+
+all: $(OBJDIR) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJFILES)
-	gcc -o $@ $^ $(LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-test: test.c $(SRCDIR)/kaleidoscope.c
-	gcc $^ -o test $(LDFLAGS) -lpthread -ggdb
+$(OBJDIR)/kaleidoscope.o: $(SRCDIR)/kaleidoscope.cpp $(SRCDIR)/kaleidoscope.h
+	$(CC) -ggdb -c -o $@ $< $(CFLAGS)
 
-$(OBJDIR)/kaleidoscope.o: $(SRCDIR)/kaleidoscope.c 
-	gcc -ggdb -c -o $@ $^ $(CFLAGS)
+$(OBJDIR)/main.o: $(SRCDIR)/main.cpp
+	$(CC) -ggdb -c -o $@ $< $(CFLAGS)
 
-$(OBJDIR)/main.o: $(SRCDIR)/main.c $(SRCDIR)/Constants.h 
-	gcc -ggdb -c -o $@ $< $(CFLAGS)
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
 clean:
 	rm -f $(OBJDIR)/*
