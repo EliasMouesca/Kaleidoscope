@@ -17,7 +17,6 @@ int main(int argc, char* argv[])
 
     while (!k.shutdown)
     {
-        SDL_Delay(10);
         k.handleEvents();
         k.render();
     }

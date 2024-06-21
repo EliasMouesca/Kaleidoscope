@@ -2,4 +2,7 @@
 obj/*
 kaleidoscope
 test
+perf
+perf/
+perf/*
 

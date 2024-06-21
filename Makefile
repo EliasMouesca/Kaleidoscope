@@ -23,11 +23,15 @@ $(OBJDIR)/main.o: $(SRCDIR)/main.cpp
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
+perf: $(EXECUTABLE)
+	perf record -o perf/perf.data $(EXECUTABLE)
+
 clean:
 	rm -f $(OBJDIR)/*
 
 .PHONY:
 	clean
+	perf
 
 .SILENT:
 	clean

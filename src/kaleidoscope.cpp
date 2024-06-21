@@ -78,15 +78,28 @@ bool Kaleidoscope::loadImage()
 
 bool Kaleidoscope::render()
 {
+
     SDL_Point newPosition;
     static SDL_Point lastPosition;
+    static Uint64 previousTick = 0;
+    Uint64 currentTick = SDL_GetTicks64();
+
+    Uint64 diff = currentTick - previousTick;
+
+    if (diff < 5) 
+    {
+        assert(diff > 0);
+        previousTick = currentTick;
+        SDL_Delay(diff);
+        return false;
+    }
 
     if (getNextPosition(SDL_GetTicks64(), newPosition) == false) return false;
 
     const int xOffset = lastPosition.x - newPosition.x;
     const int yOffset = lastPosition.y - newPosition.y;
 
-    if ( (xOffset == 0) && (yOffset == 0) ) return true;
+    if ( (xOffset == 0) && (yOffset == 0) ) return false;
 
     SDL_Rect imageCoords = {newPosition.x, newPosition.y, canvasWidth, canvasHeight};
     SDL_Surface* bufferSurface = SDL_CreateRGBSurface(0, std::max(windowWidth, windowHeight) / 2, std::max(windowWidth, windowHeight) / 2, 32, R_MASK, G_MASK, B_MASK, A_MASK);
@@ -140,6 +153,7 @@ bool Kaleidoscope::render()
     SDL_RenderPresent(renderer);
 
     lastPosition = newPosition;
+    previousTick = currentTick;
 
     return true;
 }
@@ -150,19 +164,24 @@ bool mirrorDiagonally(SDL_Surface* surface)
 
     SDL_LockSurface(surface);
 
-    for (int j = 0; j < surface->h; j++)
-        for (int i = j; i < surface->w; i++)
-        {
-            Uint32* srcPixel = (Uint32*) surface->pixels + i * surface->w + j;
-            Uint32* dstPixel = (Uint32*) surface->pixels + j * surface->w + i;
+    int width = surface->w;
+    int height = surface->h;
+    Uint32* pixels = (Uint32*) surface->pixels;
+
+    for (int j = 0; j < height; j++) {
+        for (int i = j + 1; i < width; i++) {
+            Uint32* srcPixel = pixels + i * width + j;
+            Uint32* dstPixel = pixels + j * width + i;
 
             *dstPixel = *srcPixel;
         }
+    }
 
     SDL_UnlockSurface(surface);
 
     return true;
 }
+
 
 
 bool Kaleidoscope::handleEvents()
