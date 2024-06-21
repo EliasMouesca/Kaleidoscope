@@ -33,7 +33,20 @@ Kaleidoscope::Kaleidoscope()
             0, 0, 300, 300, 
             SDL_WINDOW_RESIZABLE);
 
+    if (window == NULL)
+    {
+        std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+
     renderer = SDL_CreateRenderer(window, -1, 0);
+    if (renderer == NULL)
+    {
+        std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << std::endl;
+        SDL_DestroyWindow(window);
+        return;
+    }
 
     SDL_ShowCursor(SDL_DISABLE);
     
@@ -53,6 +66,7 @@ Kaleidoscope::~Kaleidoscope()
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    IMG_Quit();
     SDL_Quit();
 
     return;
@@ -81,25 +95,33 @@ bool Kaleidoscope::render()
 
     SDL_Point newPosition;
     static SDL_Point lastPosition;
+
     static Uint64 previousTick = 0;
     Uint64 currentTick = SDL_GetTicks64();
-
     Uint64 diff = currentTick - previousTick;
 
-    if (diff < 5) 
+    // Maybe last update was too quick, take a breath...
+    // This is in case you have a NASA computer, so that it doesn't consume too much CPU
+    if (diff < 1) 
     {
-        assert(diff > 0);
+        // If you want 60 FPS, this is only 1/16 of the delay you should wait. But the OS garantees you
+        // wait _more_ than <delay> ms, never less, so just in case.
         previousTick = currentTick;
         SDL_Delay(diff);
         return false;
     }
 
-    if (getNextPosition(SDL_GetTicks64(), newPosition) == false) return false;
+    // Calculate next position for the square
+    getNextPosition(SDL_GetTicks64(), newPosition);
 
     const int xOffset = lastPosition.x - newPosition.x;
     const int yOffset = lastPosition.y - newPosition.y;
 
+    // Maybe the increment was too small to actually render again
     if ( (xOffset == 0) && (yOffset == 0) ) return false;
+
+
+    // == BEGIN RENDERING ==
 
     SDL_Rect imageCoords = {newPosition.x, newPosition.y, canvasWidth, canvasHeight};
     SDL_Surface* bufferSurface = SDL_CreateRGBSurface(0, std::max(windowWidth, windowHeight) / 2, std::max(windowWidth, windowHeight) / 2, 32, R_MASK, G_MASK, B_MASK, A_MASK);
@@ -198,23 +220,23 @@ bool Kaleidoscope::handleEvents()
 
 bool Kaleidoscope::getNextPosition(Uint64 currentTick, SDL_Point &point)
 {
-    int bigWidth = pictureWidth, bigHeight = pictureHeight;
-    int smallWidth = canvasWidth, smallHeight = canvasHeight;
-    
-    int limitX = bigWidth - smallWidth;
-    int limitY = bigHeight - smallHeight;
+    int limitX = pictureWidth - canvasWidth;
+    int limitY = pictureHeight - canvasHeight;
 
     static double xVel = X_VELOCITY;
     static double yVel = Y_VELOCITY;
 
     static Uint64 lastTick = 0;
     Uint64 deltaTime = currentTick - lastTick;
+    lastTick = currentTick;
 
     static double x = rand() % limitX, y = rand() % limitY;
+    int nextX = x + deltaTime * xVel;
+    int nextY = y + deltaTime * yVel;
 
-    if ( (x + deltaTime * xVel > limitX) || (x + deltaTime * xVel < 0) ) xVel *= -1.0;
-
-    if ( (y + deltaTime * yVel > limitY) || (y + deltaTime * yVel < 0) ) yVel *= -1.0;
+    // If the next step is out of bounds, invert the velocities
+    if ( (nextX > limitX) || (nextX < 0) ) xVel *= -1.0;
+    if ( (nextY > limitY) || (nextY < 0) ) yVel *= -1.0;
 
     x += deltaTime * xVel;
     y += deltaTime * yVel;
@@ -225,8 +247,6 @@ bool Kaleidoscope::getNextPosition(Uint64 currentTick, SDL_Point &point)
 
     point.x = x;
     point.y = y;
-
-    lastTick = currentTick;
 
     return true;
 }
