@@ -1,25 +1,32 @@
 #include <SDL2/SDL_atomic.h>
 #include <iostream>
+#include <unistd.h>
 #include "kaleidoscope.h"
+#include <cassert>
 
+bool check();
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
+    if (!check()) return EXIT_FAILURE;
+
     Kaleidoscope k;
-    
-    if (k.loadImage() == false) 
-    {
-        puts("Could not load the image!");
-        puts("It seems that 'image' file is missing or is not an image...");
+    assert(k.loadImage());
 
-        return 1;
-    }
-
-    while (!k.shutdown)
-    {
+    while (!k.shutdown) {
         k.handleEvents();
         k.render();
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
+
+bool check() {
+    if( access( "img/image", F_OK ) != 0 ) {
+        std::cerr << "Could not load image!\nIt seems the file 'image' is missing or is not an image..." << std::endl;
+        return false;
+    } 
+
+    return true;
+}
+
+

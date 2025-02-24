@@ -24,8 +24,7 @@
 
 bool mirrorDiagonally(SDL_Surface* surface);
 
-Kaleidoscope::Kaleidoscope() 
-{ 
+Kaleidoscope::Kaleidoscope() { 
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
 
@@ -33,16 +32,14 @@ Kaleidoscope::Kaleidoscope()
             0, 0, 300, 300, 
             SDL_WINDOW_RESIZABLE);
 
-    if (window == NULL)
-    {
+    if (window == NULL) {
         std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << std::endl;
         return;
     }
 
 
     renderer = SDL_CreateRenderer(window, -1, 0);
-    if (renderer == NULL)
-    {
+    if (renderer == NULL) {
         std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << std::endl;
         SDL_DestroyWindow(window);
         return;
@@ -56,8 +53,7 @@ Kaleidoscope::Kaleidoscope()
 
 }
 
-Kaleidoscope::~Kaleidoscope()
-{
+Kaleidoscope::~Kaleidoscope() {
     if (imageSurface) SDL_FreeSurface(imageSurface);
     if (imageTexture) SDL_DestroyTexture(imageTexture);
 
@@ -72,8 +68,7 @@ Kaleidoscope::~Kaleidoscope()
     return;
 }
 
-bool Kaleidoscope::loadImage()
-{
+bool Kaleidoscope::loadImage() {
     if (imageSurface != NULL) return false;
 
     if ( (imageSurface = IMG_Load(BASE_IMAGE)) == NULL ) return false;
@@ -90,8 +85,7 @@ bool Kaleidoscope::loadImage()
     return true;
 }
 
-bool Kaleidoscope::render()
-{
+bool Kaleidoscope::render() {
 
     SDL_Point newPosition;
     static SDL_Point lastPosition;
@@ -102,8 +96,7 @@ bool Kaleidoscope::render()
 
     // Maybe last update was too quick, take a breath...
     // This is in case you have a NASA computer, so that it doesn't consume too much CPU
-    if (diff < 1) 
-    {
+    if (diff < 1) {
         // If you want 60 FPS, this is only 1/16 of the delay you should wait. But the OS garantees you
         // wait _more_ than <delay> ms, never less, so just in case.
         previousTick = currentTick;
@@ -180,8 +173,7 @@ bool Kaleidoscope::render()
     return true;
 }
 
-bool mirrorDiagonally(SDL_Surface* surface)
-{
+bool mirrorDiagonally(SDL_Surface* surface) {
     if (surface->w != surface->h) return false;
 
     SDL_LockSurface(surface);
