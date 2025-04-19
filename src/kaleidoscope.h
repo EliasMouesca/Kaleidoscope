@@ -37,7 +37,7 @@ private:
 
     // Methods
     void init(SDL_WindowFlags windowFlags);
-    bool getNextPosition(Uint64 t, SDL_Point &point);
+    bool getNextPosition(Uint32 t, SDL_Point &point);
 
 public:
     Kaleidoscope();

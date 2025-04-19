@@ -3,8 +3,8 @@ LDFLAGS=-lm -lSDL2 -lSDL2main -lSDL2_image
 EXECUTABLE=kaleidoscope
 CC=g++
 
-OBJDIR=./obj
-SRCDIR=./src
+OBJDIR=obj
+SRCDIR=src
 
 SRCFILES:=$(wildcard $(SRCDIR)/*.cpp)
 OBJFILES:=$(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCFILES))
@@ -32,7 +32,4 @@ clean:
 .PHONY:
 	clean
 	perf
-
-.SILENT:
-	clean
 

@@ -26,12 +26,15 @@ bool mirrorDiagonally(SDL_Surface* surface);
 
 Kaleidoscope::Kaleidoscope() { 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        std::cerr << "Could not initialize SDL_VIDEO" << std::endl;
+        std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
+        std::cerr << SDL_GetError() << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG) != 0) {
-        std::cerr << "Could not initialize SDL_IMG" << std::endl;
+    int flags = IMG_INIT_JPG | IMG_INIT_PNG;
+    int initted = IMG_Init(flags);
+    if ((initted & flags) != flags) {
+        std::cerr << "IMG_Init failed: " << IMG_GetError() << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -97,9 +100,9 @@ bool Kaleidoscope::render() {
     SDL_Point newPosition;
     static SDL_Point lastPosition;
 
-    static Uint64 previousTick = 0;
-    Uint64 currentTick = SDL_GetTicks64();
-    Uint64 diff = currentTick - previousTick;
+    static Uint32 previousTick = 0;
+    Uint32 currentTick = SDL_GetTicks();
+    Uint32 diff = currentTick - previousTick;
 
     // Maybe last update was too quick, take a breath...
     // This is in case you have a NASA computer, so that it doesn't consume too much CPU
@@ -112,7 +115,7 @@ bool Kaleidoscope::render() {
     }
 
     // Calculate next position for the square
-    getNextPosition(SDL_GetTicks64(), newPosition);
+    getNextPosition(SDL_GetTicks(), newPosition);
 
     const int xOffset = lastPosition.x - newPosition.x;
     const int yOffset = lastPosition.y - newPosition.y;
@@ -217,7 +220,7 @@ bool Kaleidoscope::handleEvents()
     return true;
 }
 
-bool Kaleidoscope::getNextPosition(Uint64 currentTick, SDL_Point &point)
+bool Kaleidoscope::getNextPosition(Uint32 currentTick, SDL_Point &point)
 {
     int limitX = pictureWidth - canvasWidth;
     int limitY = pictureHeight - canvasHeight;
@@ -225,8 +228,8 @@ bool Kaleidoscope::getNextPosition(Uint64 currentTick, SDL_Point &point)
     static double xVel = X_VELOCITY;
     static double yVel = Y_VELOCITY;
 
-    static Uint64 lastTick = 0;
-    Uint64 deltaTime = currentTick - lastTick;
+    static Uint32 lastTick = 0;
+    Uint32 deltaTime = currentTick - lastTick;
     lastTick = currentTick;
 
     static double x = rand() % limitX, y = rand() % limitY;
