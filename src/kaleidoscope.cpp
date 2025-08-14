@@ -26,12 +26,12 @@ bool mirrorDiagonally(SDL_Surface* surface);
 
 Kaleidoscope::Kaleidoscope() { 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        std::cerr << "Could not initialize SDL_VIDEO" << std::endl;
+        std::cerr << "Could not initialize SDL_VIDEO - " << SDL_GetError() << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG) != 0) {
-        std::cerr << "Could not initialize SDL_IMG" << std::endl;
+    if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG) == 0) {
+        std::cerr << "Could not initialize SDL_IMG - " << IMG_GetError() << std::endl;
         exit(EXIT_FAILURE);
     }
 
